@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบการจัดการข้อมูลหลังบ้าน (Administrator Dashboard)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ==========================================================================
+           ส่วนการออกแบบสไตล์ (CSS) - Admin UI Level +10 (Premium Dashboard)
+           ========================================================================== */
+        :root {
+            --primary: #4f46e5;
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --sidebar-bg: #0f172a;
+            --main-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
+        body { background-color: var(--main-bg); color: var(--text-main); display: flex; min-height: 100vh; overflow-x: hidden; }
+
+        /* ==========================================
+           แถบเมนูควบคุมด้านซ้าย (Sidebar Navigation)
+           ========================================== */
+        .sidebar {
+            width: 280px; background: var(--sidebar-bg); color: white; padding: 25px 0;
+            display: flex; flex-direction: column; position: fixed; height: 100vh;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.05); z-index: 100;
+        }
+        .sidebar-header { padding: 0 25px 30px 25px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; }
+        .sidebar-header h2 { font-size: 22px; font-weight: 700; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-header p { font-size: 13px; color: #94a3b8; margin-top: 5px; }
+        
+        .nav-item {
+            padding: 16px 25px; color: #cbd5e1; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; align-items: center; gap: 15px; font-weight: 500; font-size: 15px;
+            border-left: 4px solid transparent; margin-bottom: 5px;
+        }
+        .nav-item i { font-size: 18px; width: 20px; text-align: center; }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-item.active { background: rgba(99, 102, 241, 0.1); color: #818cf8; border-left-color: #818cf8; font-weight: 600; }
+        
+        .logout-btn {
+            margin-top: auto; padding: 18px 25px; color: #fca5a5; cursor: pointer; font-weight: 600; 
+            border-top: 1px solid rgba(255,255,255,0.05); transition: 0.3s; display: flex; align-items: center; gap: 15px;
+        }
+        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+        /* ==========================================
+           พื้นที่แสดงผลหลัก (Main Content Area)
+           ========================================== */
+        .main-content { margin-left: 280px; padding: 50px; width: calc(100% - 280px); }
+        .header-title { font-size: 32px; margin-bottom: 8px; font-weight: 700; color: var(--text-main); }
+        .header-subtitle { color: var(--text-muted); font-size: 16px; margin-bottom: 40px; }
+
+        .panel { display: none; animation: slideFadeUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards; opacity: 0; }
+        .panel.active { display: block; }
+        @keyframes slideFadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* การ์ดและวิดเจ็ต (Cards & Widgets) */
+        .card { 
+            background: var(--card-bg); border-radius: var(--radius-md); padding: 30px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.02); border: 1px solid var(--border-color); 
+            margin-bottom: 30px; transition: transform 0.3s;
+        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .card-header h3 { font-size: 18px; font-weight: 600; color: var(--text-main); }
+
+        /* ตารางข้อมูล (Data Tables) */
+        table { width: 100%; border-collapse: collapse; }
+        th { color: var(--text-muted); font-weight: 600; font-size: 14px; padding: 15px; text-align: left; border-bottom: 2px solid var(--border-color); text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 18px 15px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: middle; color: var(--text-main); font-size: 15px; }
+        tbody tr { transition: background 0.2s; }
+        tbody tr:hover { background: #f1f5f9; }
+        
+        td img { width: 60px; height: 60px; object-fit: cover; border-radius: var(--radius-sm); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        
+        /* ป้ายสถานะ (Badges & Buttons) */
+        .badge { padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 600; display: inline-block; }
+        .badge-success { background: #d1fae5; color: #047857; }
+        .badge-warning { background: #fef3c7; color: #b45309; }
+        .badge-danger { background: #fee2e2; color: #b91c1c; }
+
+        .btn-primary { background: var(--primary-gradient); color: white; border: none; padding: 12px 24px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; transition: 0.3s; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3); font-size: 14px; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4); }
+        
+        .action-btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-family: 'Prompt'; font-size: 13px; font-weight: 600; transition: 0.2s; }
+        .btn-del { background: #fee2e2; color: var(--danger); }
+        .btn-del:hover { background: var(--danger); color: white; }
+
+        /* ==========================================
+           หน้าต่างลงข้อมูล (Modal Forms)
+           ========================================== */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 9999; }
+        .modal-box { background: white; padding: 40px; border-radius: var(--radius-md); width: 550px; max-width: 90%; box-shadow: 0 25px 50px rgba(0,0,0,0.2); animation: slideFadeUp 0.3s forwards; }
+        .modal-box h2 { font-size: 22px; margin-bottom: 25px; color: var(--text-main); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: var(--text-muted); }
+        .form-group input, .form-group select { width: 100%; padding: 14px 16px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-family: 'Prompt'; font-size: 15px; outline: none; transition: 0.3s; background: #f8fafc; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+        
+        .modal-footer { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
+        .btn-cancel { background: white; color: var(--text-main); border: 1px solid var(--border-color); padding: 12px 24px; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-cancel:hover { background: #f1f5f9; }
+
+        /* กราฟิกหน้า Dashboard */
+        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 25px; border-radius: var(--radius-md); box-shadow: 0 4px 15px rgba(0,0,0,0.02); display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border-color); }
+        .stat-info h3 { color: var(--text-muted); font-size: 15px; font-weight: 500; margin-bottom: 5px; }
+        .stat-info h1 { color: var(--text-main); font-size: 36px; font-weight: 700; }
+        .stat-icon { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fa-solid fa-server"></i> Admin Portal</h2>
+            <p>ระบบควบคุมการจัดการข้อมูลร้านค้า</p>
+        </div>
+        <div class="nav-item active" onclick="switchPanel('dashboard', this)"><i class="fa-solid fa-chart-pie"></i> ภาพรวมระบบ (Dashboard)</div>
+        <div class="nav-item" onclick="switchPanel('banners', this)"><i class="fa-solid fa-images"></i> การจัดการแบนเนอร์</div>
+        <div class="nav-item" onclick="switchPanel('categories', this)"><i class="fa-solid fa-layer-group"></i> การจัดการหมวดหมู่สินค้า</div>
+        <div class="nav-item" onclick="switchPanel('products', this)"><i class="fa-solid fa-box-open"></i> การจัดการสินค้าและคลัง</div>
+        <div class="nav-item" onclick="switchPanel('orders', this)"><i class="fa-solid fa-clipboard-list"></i> รายงานคำสั่งซื้อ</div>
+        
+        <div class="logout-btn" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบผู้ดูแล</div>
+    </aside>
+
+    <main class="main-content">
+        
+        <div id="dashboard" class="panel active">
+            <h1 class="header-title">ภาพรวมการดำเนินงาน</h1>
+            <p class="header-subtitle">ข้อมูลสรุปสถานะร้านค้าและคลังสินค้า ณ ปัจจุบัน</p>
+            
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>รายการสินค้าในระบบ</h3>
+                        <h1 id="stat-products">0</h1>
+                    </div>
+                    <div class="stat-icon" style="background: rgba(99,102,241,0.1); color: var(--primary);"><i class="fa-solid fa-box"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>หมวดหมู่สินค้าทั้งหมด</h3>
+                        <h1 id="stat-categories">0</h1>
+                    </div>
+                    <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: var(--success);"><i class="fa-solid fa-tags"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>แบนเนอร์โฆษณาที่ใช้งาน</h3>
+                        <h1 id="stat-banners">0</h1>
+                    </div>
+                    <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: var(--warning);"><i class="fa-solid fa-image"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="banners" class="panel">
+            <h1 class="header-title">การจัดการหน้าแบนเนอร์ (Home Banners)</h1>
+            <p class="header-subtitle">ควบคุมภาพแบนเนอร์ที่แสดงผลในหน้าแรกของเว็บไซต์</p>
+            <div class="card">
+                <div class="card-header">
+                    <h3>รายการภาพแบนเนอร์</h3>
+                    <button class="btn-primary" onclick="openModal('bannerModal')"><i class="fa-solid fa-plus"></i> เพิ่มภาพแบนเนอร์ใหม่</button>
+                </div>
+                <table>
+                    <thead><tr><th>ภาพตัวอย่าง</th><th>รายละเอียดหัวข้อ</th><th>สถานะการแสดงผล</th><th>การจัดการ</th></tr></thead>
+                    <tbody id="table-banners"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="categories" class="panel">
+            <h1 class="header-title">การจัดการหมวดหมู่สินค้า (Categories)</h1>
+            <p class="header-subtitle">สร้างหรือลบหมวดหมู่เพื่อจำแนกประเภทสินค้าอย่างเป็นระบบ</p>
+            <div class="card">
+                <div class="card-header">
+                    <h3>ข้อมูลหมวดหมู่ทั้งหมด</h3>
+                    <button class="btn-primary" onclick="openModal('categoryModal')"><i class="fa-solid fa-plus"></i> เพิ่มหมวดหมู่ใหม่</button>
+                </div>
+                <table>
+                    <thead><tr><th>ภาพพื้นหลังหมวดหมู่</th><th>รหัสอ้างอิงหมวดหมู่</th><th>ชื่อหมวดหมู่ที่แสดงผล</th><th>การจัดการ</th></tr></thead>
+                    <tbody id="table-categories"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="products" class="panel">
+            <h1 class="header-title">การจัดการข้อมูลสินค้า (Products)</h1>
+            <p class="header-subtitle">บันทึกข้อมูลสินค้าใหม่และควบคุมจำนวนสินค้าคงคลัง</p>
+            <div class="card">
+                <div class="card-header">
+                    <h3>รายการสินค้าทั้งหมดในระบบ</h3>
+                    <button class="btn-primary" onclick="openModal('productModal')"><i class="fa-solid fa-plus"></i> เพิ่มรายการสินค้าใหม่</button>
+                </div>
+                <table>
+                    <thead><tr><th>รูปภาพสินค้า</th><th>ชื่อสินค้า</th><th>หมวดหมู่สังกัด</th><th>ราคาจัดจำหน่าย</th><th>จำนวนคงคลัง</th><th>การจัดการ</th></tr></thead>
+                    <tbody id="table-products"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="orders" class="panel">
+            <h1 class="header-title">การจัดการคำสั่งซื้อ (Orders)</h1>
+            <p class="header-subtitle">ข้อมูลการสั่งซื้อถูกเชื่อมต่อกับฐานข้อมูลหลัก</p>
+            <div class="card" style="text-align: center; padding: 60px 20px;">
+                <i class="fa-solid fa-file-excel" style="font-size: 60px; color: #10b981; margin-bottom: 20px;"></i>
+                <h3 style="font-size: 20px; margin-bottom: 10px;">คำสั่งซื้อถูกจัดเก็บใน Google Sheets อัตโนมัติ</h3>
+                <p style="color: var(--text-muted);">เพื่อความปลอดภัยและประสิทธิภาพสูงสุด ข้อมูลคำสั่งซื้อทั้งหมดจะถูกส่งไปยัง Google Sheets ของผู้ดูแลระบบโดยตรง<br>กรุณาตรวจสอบการชำระเงินและสลิปผ่านทาง Google Sheets</p>
+            </div>
+        </div>
+
+    </main>
+
+    <div class="modal-overlay" id="productModal">
+        <div class="modal-box">
+            <h2>บันทึกข้อมูลสินค้าใหม่</h2>
+            <div class="form-group">
+                <label>ชื่อรายการสินค้า (Product Name)</label>
+                <input type="text" id="p-name" placeholder="ระบุชื่อสินค้าอย่างชัดเจน">
+            </div>
+            <div class="form-group">
+                <label>ลิงก์รูปภาพสินค้า (Image URL)</label>
+                <input type="text" id="p-img" placeholder="วางลิงก์รูปภาพจากพื้นที่จัดเก็บภายนอก">
+            </div>
+            <div style="display: flex; gap: 15px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>ราคาจัดจำหน่าย (บาท)</label>
+                    <input type="number" id="p-price" placeholder="0.00">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>จำนวนในคลัง (ชิ้น)</label>
+                    <input type="number" id="p-stock" placeholder="0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>เลือกหมวดหมู่สังกัด (Category)</label>
+                <select id="p-category">
+                    <option value="">กำลังโหลดข้อมูล...</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('productModal')">ยกเลิกการบันทึก</button>
+                <button class="btn-primary" onclick="saveProduct()">ยืนยันการบันทึกข้อมูล</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="categoryModal">
+        <div class="modal-box">
+            <h2>เพิ่มหมวดหมู่สินค้าใหม่</h2>
+            <div class="form-group">
+                <label>รหัสอ้างอิงหมวดหมู่ (Category ID)</label>
+                <input type="text" id="c-id" placeholder="ใช้อักษรภาษาอังกฤษตัวพิมพ์เล็ก เช่น basketball">
+            </div>
+            <div class="form-group">
+                <label>ชื่อหมวดหมู่ที่แสดงผล (Display Name)</label>
+                <input type="text" id="c-name" placeholder="ระบุชื่อหมวดหมู่ภาษาไทย">
+            </div>
+            <div class="form-group">
+                <label>ลิงก์ภาพประกอบพื้นหลัง (Background URL)</label>
+                <input type="text" id="c-img" placeholder="วางลิงก์รูปภาพพื้นหลัง">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('categoryModal')">ยกเลิกการบันทึก</button>
+                <button class="btn-primary" onclick="saveCategory()">ยืนยันการบันทึกข้อมูล</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="bannerModal">
+        <div class="modal-box">
+            <h2>บันทึกภาพโฆษณาแบนเนอร์</h2>
+            <div class="form-group">
+                <label>หัวข้อโฆษณา (Title)</label>
+                <input type="text" id="b-title" placeholder="ระบุข้อความนำเสนอหลัก">
+            </div>
+            <div class="form-group">
+                <label>รายละเอียดรอง (Subtitle)</label>
+                <input type="text" id="b-sub" placeholder="ระบุข้อความอธิบายเพิ่มเติม">
+            </div>
+            <div class="form-group">
+                <label>ลิงก์รูปภาพประกอบ (Image URL)</label>
+                <input type="text" id="b-img" placeholder="วางลิงก์รูปภาพความละเอียดสูง">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('bannerModal')">ยกเลิกการบันทึก</button>
+                <button class="btn-primary" onclick="saveBanner()">ยืนยันการบันทึกข้อมูล</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================================================
+        // ส่วนการควบคุมและประมวลผลข้อมูล (Backend Administration Logic)
+        // ==========================================================================
+        
+        // 1. ระบบตรวจสอบความปลอดภัย (Authentication Check)
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = localStorage.getItem('gameUser');
+            if(user !== 'admin') {
+                alert('คำเตือน: การเข้าถึงระบบส่วนนี้สงวนไว้สำหรับผู้ดูแลระบบ (Administrator) เท่านั้น');
+                window.location.href = 'index.html';
+                return;
+            }
+            loadSystemData();
+        });
+
+        // เปิดช่องสัญญาณสื่อสารเรียลไทม์กับหน้าเว็บไซต์
+        const realTimeChannel = new BroadcastChannel('sportshop_live_sync');
+
+        // ฟังก์ชันควบคุมส่วนติดต่อผู้ใช้ (UI Navigation)
+        function switchPanel(panelId, btnElement) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(panelId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function logoutAdmin() {
+            if(confirm('ท่านต้องการออกจากระบบผู้ดูแลใช่หรือไม่?')) {
+                localStorage.removeItem('gameUser');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // ฟังก์ชันป้องกันชุดคำสั่งอันตรายจากการป้อนข้อมูล
+        const escapeHTML = (str) => {
+            if (typeof str !== 'string') return str;
+            return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+        };
+
+        // ----------------------------------------------------
+        // 2. ระบบจัดการฐานข้อมูลส่วนกลาง
+        // ----------------------------------------------------
+        let adminProducts = JSON.parse(localStorage.getItem('sysProducts')) || [
+            { id: 1, category: 'badminton', name: "ไม้แบดมินตันคาร์บอน", price: 1250, stock: 15, img: "https://picsum.photos/400/300?random=31" }
+        ];
+
+        let adminCategories = JSON.parse(localStorage.getItem('sysCategories')) || [
+            { id: 'badminton', name: 'อุปกรณ์แบดมินตัน', img: 'https://picsum.photos/1000/300?random=81' },
+            { id: 'football', name: 'อุปกรณ์ฟุตบอล', img: 'https://picsum.photos/1000/300?random=82' }
+        ];
+
+        let adminBanners = JSON.parse(localStorage.getItem('sysBanners')) || [
+            { title: "ยินดีต้อนรับสู่ระบบร้านจำหน่ายอุปกรณ์กีฬา", sub: "ศูนย์รวมอุปกรณ์พรีเมียมครบวงจร", img: "https://picsum.photos/1000/400?random=50" }
+        ];
+
+        // 💡 ฟังก์ชันสำคัญ: อัปเดตตัวเลือกหมวดหมู่ให้สอดคล้องกับข้อมูลจริง (Dynamic Dropdown)
+        function updateCategoryDropdown() {
+            const catSelect = document.getElementById('p-category');
+            if (adminCategories.length === 0) {
+                catSelect.innerHTML = '<option value="">-- กรุณาสร้างหมวดหมู่ก่อนดำเนินการ --</option>';
+                return;
+            }
+            // นำข้อมูลหมวดหมู่ทั้งหมดมาจัดรูปแบบเป็นตัวเลือก
+            catSelect.innerHTML = adminCategories.map(c => `<option value="${escapeHTML(c.id)}">${escapeHTML(c.name)}</option>`).join('');
+        }
+
+        // ฟังก์ชันโหลดข้อมูลทั้งหมดลงสู่ตาราง
+        function loadSystemData() {
+            // อัปเดตข้อมูลภาพรวม (Dashboard Stats)
+            document.getElementById('stat-products').innerText = adminProducts.length;
+            document.getElementById('stat-categories').innerText = adminCategories.length;
+            document.getElementById('stat-banners').innerText = adminBanners.length;
+
+            // วาดตารางสินค้า
+            const tProd = document.getElementById('table-products');
+            tProd.innerHTML = adminProducts.map((p, index) => {
+                const stockStatus = p.stock <= 0 ? '<span class="badge badge-danger">สินค้าหมด</span>' : 
+                                    p.stock < 5 ? `<span class="badge badge-warning">ใกล้หมด (${p.stock})</span>` : 
+                                    `<span class="badge badge-success">พร้อมขาย (${p.stock})</span>`;
+                // หาชื่อหมวดหมู่ภาษาไทยมาแสดง
+                const catInfo = adminCategories.find(c => c.id === p.category);
+                const catName = catInfo ? catInfo.name : 'ไม่มีหมวดหมู่';
+
+                return `
+                <tr>
+                    <td><img src="${escapeHTML(p.img)}"></td>
+                    <td><strong>${escapeHTML(p.name)}</strong></td>
+                    <td><span style="font-size:13px; color:var(--text-muted);">${escapeHTML(catName)}</span></td>
+                    <td><strong style="color:var(--primary);">${p.price.toLocaleString()}</strong></td>
+                    <td>${stockStatus}</td>
+                    <td><button class="action-btn btn-del" onclick="deleteProduct(${index})"><i class="fa-solid fa-trash"></i> ลบรายการ</button></td>
+                </tr>
+            `}).join('');
+
+            // วาดตารางหมวดหมู่
+            const tCat = document.getElementById('table-categories');
+            tCat.innerHTML = adminCategories.map((c, index) => `
+                <tr>
+                    <td><img src="${escapeHTML(c.img)}" style="width: 120px; height: 50px;"></td>
+                    <td><code style="background:#f1f5f9; padding:2px 6px; border-radius:4px;">${escapeHTML(c.id)}</code></td>
+                    <td><strong>${escapeHTML(c.name)}</strong></td>
+                    <td><button class="action-btn btn-del" onclick="deleteCategory(${index})"><i class="fa-solid fa-trash"></i> ลบรายการ</button></td>
+                </tr>
+            `).join('');
+
+            // วาดตารางแบนเนอร์
+            const tBan = document.getElementById('table-banners');
+            tBan.innerHTML = adminBanners.map((b, index) => `
+                <tr>
+                    <td><img src="${escapeHTML(b.img)}" style="width: 140px; height: 60px;"></td>
+                    <td><strong>${escapeHTML(b.title)}</strong><br><span style="font-size:13px; color:var(--text-muted);">${escapeHTML(b.sub)}</span></td>
+                    <td><span class="badge badge-success">แสดงผลอยู่</span></td>
+                    <td><button class="action-btn btn-del" onclick="deleteBanner(${index})"><i class="fa-solid fa-trash"></i> ลบรายการ</button></td>
+                </tr>
+            `).join('');
+
+            // สั่งอัปเดตตัวเลือกหมวดหมู่ (Dropdown) ในหน้าเพิ่มสินค้า
+            updateCategoryDropdown();
+        }
+
+        // ----------------------------------------------------
+        // 3. ระบบบันทึกและลบข้อมูล พร้อมสั่งหน้าบ้านให้อัปเดต
+        // ----------------------------------------------------
+        function syncToFrontend() {
+            localStorage.setItem('sysProducts', JSON.stringify(adminProducts));
+            localStorage.setItem('sysCategories', JSON.stringify(adminCategories));
+            localStorage.setItem('sysBanners', JSON.stringify(adminBanners));
+            
+            // กระจายสัญญาณแจ้งเว็บไซต์หน้าบ้านให้อัปเดตข้อมูลอัตโนมัติ
+            realTimeChannel.postMessage({ type: 'SYSTEM_UPDATE' });
+            loadSystemData();
+        }
+
+        // [ระบบสินค้า]
+        function saveProduct() {
+            const name = document.getElementById('p-name').value;
+            const img = document.getElementById('p-img').value;
+            const price = document.getElementById('p-price').value;
+            const stock = document.getElementById('p-stock').value;
+            const cat = document.getElementById('p-category').value;
+            
+            if(!name || !img || !price || !stock || !cat) return alert('ข้อผิดพลาด: กรุณากรอกข้อมูลให้ครบถ้วนทุกช่อง');
+            
+            adminProducts.push({ id: Date.now(), category: cat, name: name, price: parseInt(price), stock: parseInt(stock), img: img });
+            syncToFrontend();
+            closeModal('productModal');
+            
+            // ล้างข้อมูลในฟอร์ม
+            document.getElementById('p-name').value = ''; document.getElementById('p-img').value = '';
+            document.getElementById('p-price').value = ''; document.getElementById('p-stock').value = '';
+        }
+
+        function deleteProduct(index) {
+            if(confirm('ระบบยืนยัน: ท่านต้องการลบสินค้ารายการนี้ออกจากระบบใช่หรือไม่?')) {
+                adminProducts.splice(index, 1);
+                syncToFrontend();
+            }
+        }
+
+        // [ระบบหมวดหมู่]
+        function saveCategory() {
+            const id = document.getElementById('c-id').value.toLowerCase().replace(/\s+/g, '-'); // บังคับตัวพิมพ์เล็กและแทนที่ช่องว่างด้วยขีด
+            const name = document.getElementById('c-name').value;
+            const img = document.getElementById('c-img').value;
+            
+            if(!id || !name || !img) return alert('ข้อผิดพลาด: กรุณากรอกข้อมูลให้ครบถ้วน');
+            
+            // เช็ครหัสซ้ำ
+            if(adminCategories.find(c => c.id === id)) return alert('ข้อผิดพลาด: รหัสอ้างอิงหมวดหมู่นี้ถูกใช้งานแล้ว');
+
+            adminCategories.push({ id: id, name: name, img: img });
+            syncToFrontend();
+            closeModal('categoryModal');
+            
+            document.getElementById('c-id').value = ''; document.getElementById('c-name').value = ''; document.getElementById('c-img').value = '';
+        }
+
+        function deleteCategory(index) {
+            const catId = adminCategories[index].id;
+            // ตรวจสอบว่ามีสินค้าค้างอยู่ในหมวดหมู่หรือไม่ (ความปลอดภัยเชิงข้อมูล)
+            const hasProducts = adminProducts.some(p => p.category === catId);
+            if(hasProducts) {
+                alert('การปฏิเสธคำสั่ง: ไม่สามารถลบหมวดหมู่นี้ได้ เนื่องจากยังมีสินค้าคงค้างอยู่ในหมวดหมู่');
+                return;
+            }
+
+            if(confirm('ระบบยืนยัน: ท่านต้องการลบหมวดหมู่นี้ออกจากระบบใช่หรือไม่?')) {
+                adminCategories.splice(index, 1);
+                syncToFrontend();
+            }
+        }
+
+        // [ระบบแบนเนอร์]
+        function saveBanner() {
+            const title = document.getElementById('b-title').value;
+            const sub = document.getElementById('b-sub').value;
+            const img = document.getElementById('b-img').value;
+            
+            if(!title || !img) return alert('ข้อผิดพลาด: กรุณาระบุหัวข้อและลิงก์ภาพประกอบ');
+            
+            adminBanners.push({ title: title, sub: sub, img: img });
+            syncToFrontend();
+            closeModal('bannerModal');
+            
+            document.getElementById('b-title').value = ''; document.getElementById('b-sub').value = ''; document.getElementById('b-img').value = '';
+        }
+
+        function deleteBanner(index) {
+            if(confirm('ระบบยืนยัน: ท่านต้องการนำภาพโฆษณานี้ออกจากการแสดงผลใช่หรือไม่?')) {
+                adminBanners.splice(index, 1);
+                syncToFrontend();
+            }
+        }
+    </script>
+</body>
+</html>
