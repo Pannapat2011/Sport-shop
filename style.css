@@ -1,0 +1,248 @@
+/* กำหนดตัวแปรสีให้เรียกใช้ง่ายๆ */
+:root {
+    --primary-color: #4A90E2;
+    --primary-hover: #357ABD;
+    --success-color: #2ECC71;
+    --danger-color: #E74C3C;
+    --bg-color: #F5F7FA;
+    --card-bg: #FFFFFF;
+    --text-main: #2C3E50;
+    --text-muted: #7F8C8D;
+}
+
+
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+    font-family: 'Prompt', sans-serif;
+    background-color: var(--bg-color);
+    margin: 0;
+    padding: 0;
+    color: var(--text-main);
+}
+
+
+/* Header & Navigation */
+.header {
+    background-color: var(--card-bg);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+
+.header h2 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+
+.menu button {
+    padding: 10px 20px;
+    margin: 0 5px;
+    border: none;
+    background-color: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Prompt', sans-serif;
+    transition: all 0.3s ease;
+}
+
+
+.menu button:hover {
+    background-color: rgba(74, 144, 226, 0.1);
+    color: var(--primary-color);
+}
+
+
+.menu button.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+
+#cart-badge {
+    background: var(--danger-color);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 14px;
+    margin-left: 5px;
+}
+
+
+/* Layout หลัก */
+.content {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+
+.page { display: none; animation: fadeIn 0.4s ease; }
+.page.active { display: block; }
+
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ส่วนต้อนรับ */
+.welcome-section {
+    text-align: center;
+    margin-bottom: 40px;
+}
+.welcome-text { color: var(--primary-color); margin-bottom: 5px; }
+.welcome-subtext { color: var(--text-muted); }
+
+
+/* Grid สินค้า (พระเอกของเรา) */
+.grid-container {
+    display: grid;
+    /* จัดคอลัมน์อัตโนมัติ กว้างอย่างน้อย 250px */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+
+.card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+
+.card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+
+.btn-add {
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    padding: 12px;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Prompt', sans-serif;
+    transition: background 0.3s;
+}
+
+
+.btn-add:hover { background-color: #27ae60; }
+
+
+/* ตะกร้าสินค้า */
+.cart-item {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+
+.cart-item-info strong { font-size: 18px; }
+.cart-item-info span { color: var(--text-muted); display: block; margin-top: 5px; }
+
+
+.cart-item-action { text-align: right; }
+.cart-item-action strong { color: var(--primary-color); font-size: 18px; }
+
+
+.btn-remove {
+    background-color: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-top: 10px;
+    transition: background 0.3s;
+}
+.btn-remove:hover { background-color: #c0392b; }
+
+
+.total-box {
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: 12px;
+    text-align: right;
+    margin-top: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+
+.highlight-price { color: var(--primary-color); font-size: 24px; }
+
+
+.checkout-btn {
+    background-color: #F39C12;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-family: 'Prompt', sans-serif;
+    margin-top: 15px;
+    transition: transform 0.2s;
+}
+.checkout-btn:hover { transform: scale(1.05); }
+
+
+/* โปรไฟล์ */
+.profile-card {
+    background: var(--card-bg);
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    text-align: center;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+
+.profile-img {
+    border-radius: 50%;
+    border: 4px solid var(--primary-color);
+    padding: 4px;
+    margin-bottom: 20px;
+}
+
+
+.profile-card .role { color: var(--text-muted); font-size: 18px; margin-bottom: 5px; }
+.profile-card .school { color: var(--primary-color); font-weight: 600; }
+
+
